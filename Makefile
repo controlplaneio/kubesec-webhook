@@ -32,8 +32,8 @@ delete:
 	kubectl delete -f ./deploy/webhook-registration.yaml
 
 travis_push:
-	@docker tag $(DOCKER_IMAGE_NAME):$(VERSION) $(DOCKER_IMAGE_NAME):$(TRAVIS_COMMIT)
-	@docker push $(DOCKER_IMAGE_NAME):$(TRAVIS_COMMIT)
+	@docker tag $(DOCKER_IMAGE_NAME):$(VERSION) $(DOCKER_IMAGE_NAME):$(TRAVIS_BRANCH)-$(GITCOMMIT)
+	@docker push $(DOCKER_IMAGE_NAME):$(TRAVIS_BRANCH)-$(GITCOMMIT)
 
 travis_release:
 	@docker tag $(DOCKER_IMAGE_NAME):$(VERSION) $(DOCKER_IMAGE_NAME):$(TRAVIS_TAG)
