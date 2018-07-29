@@ -16,7 +16,7 @@ import (
 	"k8s.io/client-go/kubernetes/scheme"
 )
 
-// deploymentReplicasValidator will validate the replicas are between max and min (inclusive).
+// podValidator validates the definition against the Kubesec.io score.
 type podValidator struct {
 	minScore int
 	logger   log.Logger
@@ -25,7 +25,6 @@ type podValidator struct {
 func (d *podValidator) Validate(_ context.Context, obj metav1.Object) (bool, validating.ValidatorResult, error) {
 	kObj, ok := obj.(*v1.Pod)
 	if !ok {
-		// If not a deployment just continue the validation chain(if there is one) and don't do nothing.
 		return false, validating.ValidatorResult{Valid: true}, nil
 	}
 
@@ -46,7 +45,7 @@ func (d *podValidator) Validate(_ context.Context, obj metav1.Object) (bool, val
 
 	writer.Flush()
 
-	d.logger.Infof("Scanning %s", kObj.Name)
+	d.logger.Infof("Scanning pod %s", kObj.Name)
 
 	result, err := kubesec.NewClient().ScanDefinition(buffer)
 	if err != nil {
@@ -78,7 +77,7 @@ func NewPodWebhook(minScore int, mrec metrics.Recorder, logger log.Logger) (webh
 	}
 
 	cfg := validating.WebhookConfig{
-		Name: "kubesec-podValidator",
+		Name: "kubesec-pod",
 		Obj:  &v1.Pod{},
 	}
 

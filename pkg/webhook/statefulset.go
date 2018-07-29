@@ -10,21 +10,22 @@ import (
 	"github.com/slok/kubewebhook/pkg/webhook"
 	"github.com/slok/kubewebhook/pkg/webhook/validating"
 	"github.com/stefanprodan/kubectl-kubesec/pkg/kubesec"
-	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
+	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 	"k8s.io/client-go/kubernetes/scheme"
 )
 
-// deploymentValidator validates the definition against the Kubesec.io score.
-type deploymentValidator struct {
+// statefulSetValidator validates the definition against the Kubesec.io score.
+type statefulSetValidator struct {
 	minScore int
 	logger   log.Logger
 }
 
-func (d *deploymentValidator) Validate(_ context.Context, obj metav1.Object) (bool, validating.ValidatorResult, error) {
-	kObj, ok := obj.(*extensionsv1beta1.Deployment)
+func (d *statefulSetValidator) Validate(_ context.Context, obj metav1.Object) (bool, validating.ValidatorResult, error) {
+	kObj, ok := obj.(*appsv1beta1.StatefulSet)
 	if !ok {
+		d.logger.Errorf("received invalid StatefulSet object %v", obj)
 		return false, validating.ValidatorResult{Valid: true}, nil
 	}
 
@@ -33,19 +34,19 @@ func (d *deploymentValidator) Validate(_ context.Context, obj metav1.Object) (bo
 	writer := bufio.NewWriter(&buffer)
 
 	kObj.TypeMeta = metav1.TypeMeta{
-		Kind:       "Deployment",
+		Kind:       "StatefulSet",
 		APIVersion: "apps/v1",
 	}
 
 	err := serializer.Encode(kObj, writer)
 	if err != nil {
-		d.logger.Errorf("deployment serialization failed %v", err)
+		d.logger.Errorf("statefulset serialization failed %v", err)
 		return false, validating.ValidatorResult{Valid: true}, nil
 	}
 
 	writer.Flush()
 
-	d.logger.Infof("Scanning deployment %s", kObj.Name)
+	d.logger.Infof("Scanning statefulset %s", kObj.Name)
 
 	result, err := kubesec.NewClient().ScanDefinition(buffer)
 	if err != nil {
@@ -60,25 +61,25 @@ func (d *deploymentValidator) Validate(_ context.Context, obj metav1.Object) (bo
 	if result.Score < d.minScore {
 		return true, validating.ValidatorResult{
 			Valid:   false,
-			Message: fmt.Sprintf("%s score is %d, deployment minimum accepted score is %d", kObj.Name, result.Score, d.minScore),
+			Message: fmt.Sprintf("%s score is %d, statefulset minimum accepted score is %d", kObj.Name, result.Score, d.minScore),
 		}, nil
 	}
 
 	return false, validating.ValidatorResult{Valid: true}, nil
 }
 
-// NewDeploymentWebhook returns a new deployment validating webhook.
-func NewDeploymentWebhook(minScore int, mrec metrics.Recorder, logger log.Logger) (webhook.Webhook, error) {
+// NewStatefulSetWebhook returns a new statefulset validating webhook.
+func NewStatefulSetWebhook(minScore int, mrec metrics.Recorder, logger log.Logger) (webhook.Webhook, error) {
 
 	// Create validators.
-	val := &deploymentValidator{
+	val := &statefulSetValidator{
 		minScore: minScore,
 		logger:   logger,
 	}
 
 	cfg := validating.WebhookConfig{
-		Name: "kubesec-deployment",
-		Obj:  &extensionsv1beta1.Deployment{},
+		Name: "kubesec-statefulset",
+		Obj:  &appsv1beta1.StatefulSet{},
 	}
 
 	return validating.NewWebhook(cfg, val, mrec, logger)

@@ -1,0 +1,20 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: statefulset-test
+spec:
+  selector:
+    matchLabels:
+      app: statefulset-test
+  serviceName: "statefulset-test"
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: statefulset-test
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        securityContext:
+          privileged: true

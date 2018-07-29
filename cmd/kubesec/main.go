@@ -86,7 +86,22 @@ func (m *Main) Run() error {
 	if err != nil {
 		return err
 	}
-
+	dw, err := webhook.NewDaemonSetWebhook(m.flags.MinScore, metricsRec, m.logger)
+	if err != nil {
+		return err
+	}
+	dwd, err := whhttp.HandlerFor(dw)
+	if err != nil {
+		return err
+	}
+	sw, err := webhook.NewStatefulSetWebhook(m.flags.MinScore, metricsRec, m.logger)
+	if err != nil {
+		return err
+	}
+	swd, err := whhttp.HandlerFor(sw)
+	if err != nil {
+		return err
+	}
 	errC := make(chan error)
 
 	// Serve webhooks
@@ -96,6 +111,8 @@ func (m *Main) Run() error {
 		mux := http.NewServeMux()
 		mux.Handle("/pod", pwd)
 		mux.Handle("/deployment", vdwh)
+		mux.Handle("/daemonset", dwd)
+		mux.Handle("/statefulset", swd)
 		errC <- http.ListenAndServeTLS(
 			m.flags.ListenAddress,
 			m.flags.CertFile,

@@ -2,11 +2,11 @@
 
 [![Build Status](https://travis-ci.org/stefanprodan/kubesec-webhook.svg?branch=master)](https://travis-ci.org/stefanprodan/kubesec-webhook)
 
-Kubesec.io Kubernetes validating admission webhook
+Kubesec.io admission controller for Kubernetes Deployments, DaemonSets and StatefulSets
 
 ### Install
 
-Generate Kubernetes objects with a new TLS certificate and CA Bundle:
+Generate webhook configuration with a new TLS certificate and CA Bundle:
 
 ```bash
 make certs
@@ -26,24 +26,34 @@ kubectl label namespaces default kubesec-validation=enabled
 
 ### Usage
 
-Try to apply a privileged pod:
-
-```bash
-kubectl apply -f ./test/pod.yaml
-
-Error from server (InternalError): error when creating "./test/pod.yaml": 
-Internal error occurred: admission webhook "kubesc.io" denied the request: 
-pod-test score is -26, pod minimum accepted score is 0
-``` 
-
-Try to apply a privileged deployment:
+Try to apply a privileged Deployment:
 
 ```bash
 kubectl apply -f ./test/deployment.yaml
 
 Error from server (InternalError): error when creating "./test/deployment.yaml": 
-Internal error occurred: admission webhook "kubesc.io" denied the request: 
+Internal error occurred: admission webhook "deployment.admission.kubesc.io" denied the request: 
 deployment-test score is -30, deployment minimum accepted score is 0
+```
+
+Try to apply a privileged DaemonSet:
+
+```bash
+kubectl apply -f ./test/daemonset.yaml
+
+Error from server (InternalError): error when creating "./test/daemonset.yaml": 
+Internal error occurred: admission webhook "daemonset.admission.kubesc.io" denied the request: 
+daemonset-test score is -30, daemonset minimum accepted score is 0
+```
+
+Try to apply a privileged StatefulSet:
+
+```bash
+kubectl apply -f ./test/statefulset.yaml
+
+Error from server (InternalError): error when creating "./test/statefulset.yaml": 
+Internal error occurred: admission webhook "statefulset.admission.kubesc.io" denied the request: 
+statefulset-test score is -30, deployment minimum accepted score is 0
 ```
 
 ### Configuration
