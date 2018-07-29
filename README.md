@@ -99,3 +99,11 @@ spec:
           secret:
             secretName: kubesec-webhook-certs
 ```
+
+### Monitoring 
+
+The admission controller exposes Prometheus RED metrics for each webhook a Grafana dashboard is available [here](https://grafana.com/dashboards/7088).
+
+### Credits
+
+Kudos to [Xabier](https://github.com/slok) for the awesome [kubewebhook library](https://github.com/slok/kubewebhook).  
