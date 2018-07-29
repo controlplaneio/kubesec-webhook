@@ -94,8 +94,8 @@ func (m *Main) Run() error {
 
 		m.logger.Infof("webhooks listening on %s...", m.flags.ListenAddress)
 		mux := http.NewServeMux()
-		mux.Handle("/webhooks/validating/pod", pwd)
-		mux.Handle("/webhooks/validating/deployment", vdwh)
+		mux.Handle("/pod", pwd)
+		mux.Handle("/deployment", vdwh)
 		errC <- http.ListenAndServeTLS(
 			m.flags.ListenAddress,
 			m.flags.CertFile,
