@@ -4,16 +4,16 @@ Kubesec.io Kubernetes validating admission webhook
 
 ### Install
 
-Generate a TLS certificate and CA Bundle with:
+Generate Kubernetes objects with a new TLS certificate and CA Bundle:
 
 ```bash
 make certs
 ```
 
-Deploy Kubesec.io admission controller in the default namespace:
+Deploy the admission controller and webhooks in the kubesec namespace:
 
 ```bash
-kubectl apply -f ./deploy/
+make deploy
 ``` 
 
 Enable Kubesec validation by adding this label:
@@ -28,7 +28,7 @@ Try to apply a privileged pod:
 kubectl apply -f ./test/pod.yaml
 
 Error from server (InternalError): error when creating "./test/pod.yaml": 
-Internal error occurred: admission webhook "webhook.kubesc.io" denied the request: 
+Internal error occurred: admission webhook "kubesc.io" denied the request: 
 pod-test score is -26, pod minimum accepted score is 0
 ``` 
 
@@ -38,8 +38,8 @@ Try to apply a privileged deployment:
 kubectl apply -f ./test/deployment.yaml
 
 Error from server (InternalError): error when creating "./test/deployment.yaml": 
-Internal error occurred: admission webhook "webhook.kubesc.io" denied the request: 
-deployment-test score is -26, pod minimum accepted score is 0
+Internal error occurred: admission webhook "kubesc.io" denied the request: 
+deployment-test score is -30, deployment minimum accepted score is 0
 ```
 
 You can set the minimum Kubesec.io score in `./deploy/webhook/yaml`:
@@ -63,7 +63,7 @@ spec:
     spec:
       containers:
         - name: kubesec-webhook
-          image: stefanprodan/kubesec:0.1-test0
+          image: stefanprodan/kubesec:0.1-dev
           imagePullPolicy: Always
           command:
             - ./kubesec

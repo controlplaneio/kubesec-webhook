@@ -1,24 +1,23 @@
 #!/usr/bin/env bash
 
 # Defaults
-WEBHOOK_NS=${1:-"default"}
-NAME=${2:-"kubesec"}
-WEBHOOK_SVC="${NAME}-webhook"
+NAMESPACE=${1:-"kubesec"}
+NAME=${2:-"kubesec-webhook"}
 OS="`uname`"
 
-# Generate certs
+# Generate cert
 openssl genrsa -out webhookCA.key 2048
-openssl req -new -key ./webhookCA.key -subj "/CN=${WEBHOOK_SVC}.${WEBHOOK_NS}.svc" -out ./webhookCA.csr
+openssl req -new -key ./webhookCA.key -subj "/CN=${NAME}.${NAMESPACE}.svc" -out ./webhookCA.csr
 openssl x509 -req -days 365 -in webhookCA.csr -signkey webhookCA.key -out webhook.crt
 
-# Generate Kubernetes secret
-kubectl create secret generic \
-    ${WEBHOOK_SVC}-certs \
+# Generate cert secret
+kubectl -n kubesec create secret generic \
+    ${NAME}-certs \
     --from-file=key.pem=./webhookCA.key \
     --from-file=cert.pem=./webhook.crt \
     --dry-run -o yaml > ./webhook-certs.yaml
 
-# Set the CABundle on the webhook registration
+# Encode CABundle
 if [[ "$OS" == "Darwin" ]]; then
     CA_BUNDLE=$(cat ./webhook.crt | base64)
 elif [[ "$OS" == "Linux" ]]; then

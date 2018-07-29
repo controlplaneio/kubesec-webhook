@@ -2,17 +2,17 @@
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: kubesec-pod-webhook
+  name: kubesec-pod
   labels:
     app: kubesec-webhook
     kind: validator
 webhooks:
-  - name: webhook.kubesc.io
+  - name: kubesc.io
     clientConfig:
       service:
         name: kubesec-webhook
-        namespace: default
-        path: "/webhooks/validating/pod"
+        namespace: kubesec
+        path: "/pod"
       caBundle: CA_BUNDLE
     rules:
       - operations: [ "CREATE", "UPDATE" ]
@@ -26,17 +26,17 @@ webhooks:
 apiVersion: admissionregistration.k8s.io/v1beta1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: kubesec-deployment-webhook
+  name: kubesec-deployment
   labels:
     app: kubesec-webhook
     kind: validator
 webhooks:
-  - name: webhook.kubesc.io
+  - name: kubesc.io
     clientConfig:
       service:
         name: kubesec-webhook
-        namespace: default
-        path: "/webhooks/validating/deployment"
+        namespace: kubesec
+        path: "/deployment"
       caBundle: CA_BUNDLE
     rules:
       - operations: [ "CREATE", "UPDATE" ]

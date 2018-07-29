@@ -1,9 +1,11 @@
+---
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: kubesec-webhook
   labels:
     app: kubesec-webhook
+  namespace: kubesec
 spec:
   replicas: 1
   template:
@@ -16,7 +18,7 @@ spec:
     spec:
       containers:
         - name: kubesec-webhook
-          image: stefanprodan/kubesec:0.1-test0
+          image: stefanprodan/kubesec-webhook:0.1-dev
           imagePullPolicy: Always
           command:
             - ./kubesec
@@ -42,6 +44,7 @@ metadata:
   name: kubesec-webhook
   labels:
     app: kubesec-webhook
+  namespace: kubesec
 spec:
   ports:
   - port: 443

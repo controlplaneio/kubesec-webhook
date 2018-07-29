@@ -1,9 +1,9 @@
-NAME:=kubesec
+NAME:=kubesec-webhook
 DOCKER_REPOSITORY:=stefanprodan
 DOCKER_IMAGE_NAME:=$(DOCKER_REPOSITORY)/$(NAME)
 GITREPO:=github.com/stefanprodan/kubesec-webhook
 GITCOMMIT:=$(shell git describe --dirty --always)
-VERSION:=0.1-test0
+VERSION:=0.1-dev
 
 .PHONY: build
 build:
@@ -15,8 +15,26 @@ push:
 
 .PHONY: test
 test:
-	cd pkg/server ; go test -v -race ./...
+	cd pkg/webhook ; go test -v -race ./...
 
 .PHONY: certs
 certs:
 	cd deploy && ./gen-certs.sh
+
+.PHONY: deploy
+deploy:
+	kubectl create namespace kubesec
+	kubectl apply -f ./deploy/
+
+.PHONY: delete
+delete:
+	kubectl delete namespace kubesec
+	kubectl delete -f ./deploy/webhook-registration.yaml
+
+travis_push:
+	@docker tag $(DOCKER_IMAGE_NAME):$(VERSION) $(DOCKER_IMAGE_NAME):$(TRAVIS_COMMIT)
+	@docker push $(DOCKER_IMAGE_NAME):$(TRAVIS_COMMIT)
+
+travis_release:
+	@docker tag $(DOCKER_IMAGE_NAME):$(VERSION) $(DOCKER_IMAGE_NAME):$(TRAVIS_TAG)
+	@docker push $(DOCKER_IMAGE_NAME):$(TRAVIS_TAG)
