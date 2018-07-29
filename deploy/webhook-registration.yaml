@@ -1,0 +1,52 @@
+---
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: kubesec-pod-webhook
+  labels:
+    app: kubesec-webhook
+    kind: validator
+webhooks:
+  - name: webhook.kubesc.io
+    clientConfig:
+      service:
+        name: kubesec-webhook
+        namespace: default
+        path: "/webhooks/validating/pod"
+      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5RENDQWJBQ0NRQ2pBUjF5MURpcWVqQU5CZ2txaGtpRzl3MEJBUVVGQURBbU1TUXdJZ1lEVlFRRERCdHIKZFdKbGMyVmpMWGRsWW1odmIyc3VaR1ZtWVhWc2RDNXpkbU13SGhjTk1UZ3dOekk1TVRZME9UTTRXaGNOTVRrdwpOekk1TVRZME9UTTRXakFtTVNRd0lnWURWUVFEREJ0cmRXSmxjMlZqTFhkbFltaHZiMnN1WkdWbVlYVnNkQzV6CmRtTXdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEYndGYmlLZVV6d09FdDFuQ20KT3FVU2toSVRtVjFUTVhYQnZNdmlZU0VoRmVpY3BXVCtWWnl1N0VCNXRVZlRGcTd4WVA1RWN4L2ExMndZVCt1YQpBR1hwSk9JTDlEU0pFdEFXQm9vY1FLQUdEWEFhZWFXbWJvbzhHVnBYL0ZybUxGTFVDSGpkQWZaWEZYY3NyZ2xECmxkcHl0WUU0QWFZankvMGtsLzFkTk5wRGFMOEd5NGtYbnJyUE1GWCt6cGJxeVpUa3N2QXpOL0ZoQ0w3QVh0SkEKWGZjR2pPS1IwaE55MU1tdkMxbWZObkg2QUhLTDhudnZqY1JXcjhvQUhKRjdHcVo5bGZQaHhZbTVMMm82bzRFVwpsemJ5ZlUwK2hvbEZOSmhUM1gxcnR3T05HUU9XbGI1anFiUkp4YXhhMDNMdGd4RzZlVXhQa0hqNUNuUGFOK1UzClZVaUpBZ01CQUFFd0RRWUpLb1pJaHZjTkFRRUZCUUFEZ2dFQkFJczdOOGVSRW5CSlVrcUM2TGhzVWVmR2ZMbUwKR2EyaE5xS1hXMG1uQ0t6U3JNNmwrb2JERExmWGRwVFYxZUp2ajVBQjNkTzZ2dlVWSHNtRFFxUVJNYXU2Z3oyVgo4bCtsL2JNUzlBZ0hoMGI4NXBhQXVGeXUxbTlKQ1BKdXpENU8weXA3cTM4ekpPOHFRdlVCU0hkVnhkRGN3WlNhCk5oUk5LNXRTR1hpTUltV09iUFhMWGdHNjk5UnV1OUY2RUZPSVJ4YUhqbEFTenl0dDdlUUY0Z3hzOFZPeEtuQncKRm9GZWNRUDF6YVYvZVZ2NEhlZFNhcXQ5OXpHYUJvWXFDclZwU2NabnNRVGxrTERIeTEyUURBVFhLdndUeXQzNApMZlpSdldiQ2U4Y1plTTRvN0czeFVDZXJHR2pqNlI2UDEwZVdoVWpmaEYxblFoRXJ0NE1NNVF1dHdoTT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+    rules:
+      - operations: [ "CREATE", "UPDATE" ]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+    namespaceSelector:
+      matchLabels:
+        kubesec-validation: enabled
+---
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: kubesec-deployment-webhook
+  labels:
+    app: kubesec-webhook
+    kind: validator
+webhooks:
+  - name: webhook.kubesc.io
+    clientConfig:
+      service:
+        name: kubesec-webhook
+        namespace: default
+        path: "/webhooks/validating/deployment"
+      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5RENDQWJBQ0NRQ2pBUjF5MURpcWVqQU5CZ2txaGtpRzl3MEJBUVVGQURBbU1TUXdJZ1lEVlFRRERCdHIKZFdKbGMyVmpMWGRsWW1odmIyc3VaR1ZtWVhWc2RDNXpkbU13SGhjTk1UZ3dOekk1TVRZME9UTTRXaGNOTVRrdwpOekk1TVRZME9UTTRXakFtTVNRd0lnWURWUVFEREJ0cmRXSmxjMlZqTFhkbFltaHZiMnN1WkdWbVlYVnNkQzV6CmRtTXdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEYndGYmlLZVV6d09FdDFuQ20KT3FVU2toSVRtVjFUTVhYQnZNdmlZU0VoRmVpY3BXVCtWWnl1N0VCNXRVZlRGcTd4WVA1RWN4L2ExMndZVCt1YQpBR1hwSk9JTDlEU0pFdEFXQm9vY1FLQUdEWEFhZWFXbWJvbzhHVnBYL0ZybUxGTFVDSGpkQWZaWEZYY3NyZ2xECmxkcHl0WUU0QWFZankvMGtsLzFkTk5wRGFMOEd5NGtYbnJyUE1GWCt6cGJxeVpUa3N2QXpOL0ZoQ0w3QVh0SkEKWGZjR2pPS1IwaE55MU1tdkMxbWZObkg2QUhLTDhudnZqY1JXcjhvQUhKRjdHcVo5bGZQaHhZbTVMMm82bzRFVwpsemJ5ZlUwK2hvbEZOSmhUM1gxcnR3T05HUU9XbGI1anFiUkp4YXhhMDNMdGd4RzZlVXhQa0hqNUNuUGFOK1UzClZVaUpBZ01CQUFFd0RRWUpLb1pJaHZjTkFRRUZCUUFEZ2dFQkFJczdOOGVSRW5CSlVrcUM2TGhzVWVmR2ZMbUwKR2EyaE5xS1hXMG1uQ0t6U3JNNmwrb2JERExmWGRwVFYxZUp2ajVBQjNkTzZ2dlVWSHNtRFFxUVJNYXU2Z3oyVgo4bCtsL2JNUzlBZ0hoMGI4NXBhQXVGeXUxbTlKQ1BKdXpENU8weXA3cTM4ekpPOHFRdlVCU0hkVnhkRGN3WlNhCk5oUk5LNXRTR1hpTUltV09iUFhMWGdHNjk5UnV1OUY2RUZPSVJ4YUhqbEFTenl0dDdlUUY0Z3hzOFZPeEtuQncKRm9GZWNRUDF6YVYvZVZ2NEhlZFNhcXQ5OXpHYUJvWXFDclZwU2NabnNRVGxrTERIeTEyUURBVFhLdndUeXQzNApMZlpSdldiQ2U4Y1plTTRvN0czeFVDZXJHR2pqNlI2UDEwZVdoVWpmaEYxblFoRXJ0NE1NNVF1dHdoTT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+    rules:
+      - operations: [ "CREATE", "UPDATE" ]
+        apiGroups: ["extensions"]
+        apiVersions: ["v1beta1"]
+        resources: ["deployments"]
+      - operations: [ "CREATE", "UPDATE" ]
+        apiGroups: ["apps"]
+        apiVersions: ["v1beta1", "v1beta2", "v1"]
+        resources: ["deployments"]
+    namespaceSelector:
+      matchLabels:
+        kubesec-validation: enabled

@@ -1,0 +1,50 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: kubesec-webhook
+  labels:
+    app: kubesec-webhook
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: kubesec-webhook
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8081"
+    spec:
+      containers:
+        - name: kubesec-webhook
+          image: stefanprodan/kubesec:0.1-test0
+          imagePullPolicy: Always
+          command:
+            - ./kubesec
+          args:
+            - -tls-cert-file=/etc/webhook/certs/cert.pem
+            - -tls-key-file=/etc/webhook/certs/key.pem
+            - -min-score=0
+          ports:
+            - containerPort: 8080
+            - containerPort: 8081
+          volumeMounts:
+            - name: webhook-certs
+              mountPath: /etc/webhook/certs
+              readOnly: true
+      volumes:
+        - name: webhook-certs
+          secret:
+            secretName: kubesec-webhook-certs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubesec-webhook
+  labels:
+    app: kubesec-webhook
+spec:
+  ports:
+  - port: 443
+    targetPort: 8080
+  selector:
+    app: kubesec-webhook
