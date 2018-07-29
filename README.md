@@ -1,5 +1,7 @@
 # kubesec-webhook
 
+[![Build Status](https://travis-ci.org/stefanprodan/kubesec-webhook.svg?branch=master)](https://travis-ci.org/stefanprodan/kubesec-webhook)
+
 Kubesec.io Kubernetes validating admission webhook
 
 ### Install
@@ -22,6 +24,8 @@ Enable Kubesec validation by adding this label:
 kubectl label namespaces default kubesec-validation=enabled
 ```
 
+### Usage
+
 Try to apply a privileged pod:
 
 ```bash
@@ -41,6 +45,8 @@ Error from server (InternalError): error when creating "./test/deployment.yaml":
 Internal error occurred: admission webhook "kubesc.io" denied the request: 
 deployment-test score is -30, deployment minimum accepted score is 0
 ```
+
+### Configuration
 
 You can set the minimum Kubesec.io score in `./deploy/webhook/yaml`:
 

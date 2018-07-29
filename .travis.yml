@@ -1,0 +1,32 @@
+sudo: required
+language: go
+
+go:
+  - 1.10.x
+
+services:
+  - docker
+
+addons:
+  apt:
+    packages:
+      - docker-ce
+
+script:
+  - make test
+  - make build
+
+after_success:
+  - if [ -z "$DOCKER_USER" ]; then
+      echo "PR build, skipping Docker Hub push";
+    else
+      echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin;
+      make travis_push;
+    fi
+
+deploy:
+  provider: script
+  script: make travis_release
+  on:
+    tags: true
+    branch: master
