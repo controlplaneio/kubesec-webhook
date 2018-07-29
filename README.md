@@ -4,6 +4,8 @@
 
 Kubesec.io admission controller for Kubernetes Deployments, DaemonSets and StatefulSets
 
+For the kubectl scan plugin see [kubectl-kubesec](https://github.com/stefanprodan/kubectl-kubesec)
+
 ### Install
 
 Generate webhook configuration with a new TLS certificate and CA Bundle:
