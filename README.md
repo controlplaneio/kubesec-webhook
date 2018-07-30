@@ -8,13 +8,13 @@ For the kubectl scan plugin see [kubectl-kubesec](https://github.com/stefanproda
 
 ### Install
 
-Generate webhook configuration with a new TLS certificate and CA Bundle:
+Generate webhook configuration files with a new TLS certificate and CA Bundle:
 
 ```bash
 make certs
 ```
 
-Deploy the admission controller and webhooks in the kubesec namespace:
+Deploy the admission controller and webhooks in the kubesec namespace (requires Kubernetes 1.10 or newer):
 
 ```bash
 make deploy
