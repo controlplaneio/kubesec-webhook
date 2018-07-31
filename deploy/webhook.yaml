@@ -38,6 +38,21 @@ spec:
           ports:
             - containerPort: 8080
             - containerPort: 8081
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: 8081
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: 8081
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "1000m"
+            requests:
+              memory: "32Mi"
+              cpu: "10m"
           volumeMounts:
             - name: webhook-certs
               mountPath: /etc/webhook/certs
