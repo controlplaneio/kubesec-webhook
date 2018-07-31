@@ -16,6 +16,9 @@ spec:
         prometheus.io/scrape: "true"
         prometheus.io/port: "8081"
     spec:
+      securityContext:
+        readOnlyRootFilesystem: true
+        runAsUser: 10001
       containers:
         - name: kubesec-webhook
           image: stefanprodan/kubesec-webhook:0.1-dev
