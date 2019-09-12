@@ -14,6 +14,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 	"k8s.io/client-go/kubernetes/scheme"
+	"encoding/json"
 )
 
 // podValidator validates the definition against the Kubesec.io score.
@@ -57,10 +58,17 @@ func (d *podValidator) Validate(_ context.Context, obj metav1.Object) (bool, val
 		return false, validating.ValidatorResult{Valid: true}, nil
 	}
 
+	jq, err := json.MarshalIndent(result, "", "  ")
+	if err != nil {
+	    d.logger.Errorf("kubesec.io pretty printing issue %v", err)
+	    return false, validating.ValidatorResult{Valid: true}, nil
+	}
+	d.logger.Infof("Scan Result:\n%s", jq)
+
 	if result.Score < d.minScore {
 		return true, validating.ValidatorResult{
 			Valid:   false,
-			Message: fmt.Sprintf("%s score is %d, minimum accepted score is %d", kObj.Name, result.Score, d.minScore),
+			Message: fmt.Sprintf("%s score is %d, minimum accepted score is %d\nScan Result:\n%s", kObj.Name, result.Score, d.minScore, jq),
 		}, nil
 	}
 
