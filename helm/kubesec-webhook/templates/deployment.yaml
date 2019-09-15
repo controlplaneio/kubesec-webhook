@@ -32,6 +32,15 @@ spec:
             - -tls-key-file=/etc/webhook/certs/key.pem
             - -min-score=0
             - -debug
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 10001
+            capabilities:
+              drop:
+              - all
+              add:
+              - NET_BIND_SERVICE
           ports:
             - name: http
               containerPort: 80
