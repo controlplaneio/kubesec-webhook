@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "kubesec-webhook.name" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "kubesec-webhook.name" . }}
+    helm.sh/chart: {{ include "kubesec-webhook.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.server.port }}
+      protocol: TCP
+      name: https
+  selector:
+    app.kubernetes.io/name: {{ include "kubesec-webhook.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
