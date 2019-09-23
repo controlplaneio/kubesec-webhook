@@ -36,6 +36,44 @@ kubectl apply -f ./test/deployment.yaml
 Error from server (InternalError): error when creating "./test/deployment.yaml": 
 Internal error occurred: admission webhook "deployment.admission.kubesc.io" denied the request: 
 deployment-test score is -30, deployment minimum accepted score is 0
+Scan Result:
+{
+  "error": "",
+  "score": -30,
+  "scoring": {
+    "critical": [
+      {
+        "selector": "containers[] .securityContext .privileged == true",
+        "reason": "Privileged containers can allow almost completely unrestricted host access",
+        "weight": 0
+      }
+    ],
+    "advise": [
+      {
+        "selector": "containers[] .securityContext .runAsNonRoot == true",
+        "reason": "Force the running image to run as a non-root user to ensure least privilege"
+      },
+      {
+        "selector": "containers[] .securityContext .capabilities .drop",
+        "reason": "Reducing kernel capabilities available to a container limits its attack surface",
+        "href": "https://kubernetes.io/docs/tasks/configure-pod-container/security-context/"
+      },
+      {
+        "selector": "containers[] .securityContext .readOnlyRootFilesystem == true",
+        "reason": "An immutable root filesystem can prevent malicious binaries being added to 
+PATH and increase attack cost"
+      },
+      {
+        "selector": "containers[] .securityContext .runAsUser \u003e 10000",
+        "reason": "Run as a high-UID user to avoid conflicts with the host's user table"
+      },
+      {
+        "selector": "containers[] .securityContext .capabilities .drop | index(\"ALL\")",
+        "reason": "Drop all capabilities and add only those required to reduce syscall attack surface"
+      }
+    ]
+  }
+}
 ```
 
 Try to apply a privileged DaemonSet:
@@ -46,6 +84,43 @@ kubectl apply -f ./test/daemonset.yaml
 Error from server (InternalError): error when creating "./test/daemonset.yaml": 
 Internal error occurred: admission webhook "daemonset.admission.kubesc.io" denied the request: 
 daemonset-test score is -30, daemonset minimum accepted score is 0
+Scan Result:
+{
+  "error": "",
+  "score": -30,
+  "scoring": {
+    "critical": [
+      {
+        "selector": "containers[] .securityContext .privileged == true",
+        "reason": "Privileged containers can allow almost completely unrestricted host access",
+        "weight": 0
+      }
+    ],
+    "advise": [
+      {
+        "selector": "containers[] .securityContext .runAsNonRoot == true",
+        "reason": "Force the running image to run as a non-root user to ensure least privilege"
+      },
+      {
+        "selector": "containers[] .securityContext .capabilities .drop",
+        "reason": "Reducing kernel capabilities available to a container limits its attack surface",
+        "href": "https://kubernetes.io/docs/tasks/configure-pod-container/security-context/"
+      },
+      {
+        "selector": "containers[] .securityContext .readOnlyRootFilesystem == true",
+        "reason": "An immutable root filesystem can prevent malicious binaries being added to PATH and increase attack cost"
+      },
+      {
+        "selector": "containers[] .securityContext .runAsUser \u003e 10000",
+        "reason": "Run as a high-UID user to avoid conflicts with the host's user table"
+      },
+      {
+        "selector": "containers[] .securityContext .capabilities .drop | index(\"ALL\")",
+        "reason": "Drop all capabilities and add only those required to reduce syscall attack surface"
+      }
+    ]
+  }
+}
 ```
 
 Try to apply a privileged StatefulSet:
@@ -55,7 +130,45 @@ kubectl apply -f ./test/statefulset.yaml
 
 Error from server (InternalError): error when creating "./test/statefulset.yaml": 
 Internal error occurred: admission webhook "statefulset.admission.kubesc.io" denied the request: 
-statefulset-test score is -30, deployment minimum accepted score is 0
+statefulset-test score is -30, statefulset minimum accepted score is 0
+Scan Result:
+{
+  "error": "",
+  "score": -30,
+  "scoring": {
+    "critical": [
+      {
+        "selector": "containers[] .securityContext .privileged == true",
+        "reason": "Privileged containers can allow almost completely unrestricted host access",
+        "weight": 0
+      }
+    ],
+    "advise": [
+      {
+        "selector": ".spec .volumeClaimTemplates[] .spec .accessModes | index(\"ReadWriteOnce\")",
+        "reason": ""
+      },
+      {
+        "selector": "containers[] .securityContext .runAsNonRoot == true",
+        "reason": "Force the running image to run as a non-root user to ensure least privilege"
+      },
+      {
+        "selector": "containers[] .securityContext .capabilities .drop",
+        "reason": "Reducing kernel capabilities available to a container limits its attack surface",
+        "href": "https://kubernetes.io/docs/tasks/configure-pod-container/security-context/"
+      },
+      {
+        "selector": "containers[] .securityContext .readOnlyRootFilesystem == true",
+        "reason": "An immutable root filesystem can prevent malicious binaries being added to 
+PATH and increase attack cost"
+      },
+      {
+        "selector": "containers[] .securityContext .runAsUser \u003e 10000",
+        "reason": "Run as a high-UID user to avoid conflicts with the host's user table"
+      }
+    ]
+  }
+}
 ```
 
 ### Configuration
