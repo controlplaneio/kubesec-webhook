@@ -7,6 +7,9 @@ metadata:
     app: kubesec-webhook
   namespace: kubesec
 spec:
+  selector:
+    matchLabels:
+      app: kubesec-webhook
   replicas: 1
   template:
     metadata:
