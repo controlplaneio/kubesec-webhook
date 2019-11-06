@@ -116,7 +116,7 @@
   version = "v1.0.1"
 
 [[projects]]
-  name = "github.com/stefanprodan/kubectl-kubesec"
+  name = "github.com/controlplaneio/kubectl-kubesec"
   packages = ["pkg/kubesec"]
   revision = "b5b5e96fcac1389fbb911819257012f32712302a"
   version = "0.3.0"

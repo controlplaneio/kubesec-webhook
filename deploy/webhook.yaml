@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: kubesec-webhook
-          image: stefanprodan/kubesec-webhook:0.1-dev
+          image: controlplaneio/kubesec-webhook:0.1-dev
           imagePullPolicy: Always
           securityContext:
             readOnlyRootFilesystem: true
