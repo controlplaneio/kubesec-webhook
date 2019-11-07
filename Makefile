@@ -1,7 +1,7 @@
 NAME:=kubesec-webhook
-DOCKER_REPOSITORY:=stefanprodan
+DOCKER_REPOSITORY:=controlplaneio
 DOCKER_IMAGE_NAME:=$(DOCKER_REPOSITORY)/$(NAME)
-GITREPO:=github.com/stefanprodan/kubesec-webhook
+GITREPO:=github.com/controlplaneio/kubesec-webhook
 GITCOMMIT:=$(shell git describe --dirty --always)
 VERSION:=0.1-dev
 
