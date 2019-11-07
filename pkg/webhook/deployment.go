@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/slok/kubewebhook/pkg/log"
 	"github.com/slok/kubewebhook/pkg/observability/metrics"
@@ -14,7 +15,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 	"k8s.io/client-go/kubernetes/scheme"
-	"encoding/json"
 )
 
 // deploymentValidator validates the definition against the Kubesec.io score.
@@ -60,8 +60,8 @@ func (d *deploymentValidator) Validate(_ context.Context, obj metav1.Object) (bo
 
 	jq, err := json.MarshalIndent(result, "", "  ")
 	if err != nil {
-	    d.logger.Errorf("kubesec.io pretty printing issue %v", err)
-	    return false, validating.ValidatorResult{Valid: true}, nil
+		d.logger.Errorf("kubesec.io pretty printing issue %v", err)
+		return false, validating.ValidatorResult{Valid: true}, nil
 	}
 	d.logger.Infof("Scan Result:\n%s", jq)
 
