@@ -1,10 +1,10 @@
 # kubesec-webhook
 
-[![Build Status](https://travis-ci.org/stefanprodan/kubesec-webhook.svg?branch=master)](https://travis-ci.org/stefanprodan/kubesec-webhook)
+[![Build Status](https://travis-ci.org/controlplaneio/kubesec-webhook.svg?branch=master)](https://travis-ci.org/controlplaneio/kubesec-webhook)
 
 Kubesec.io admission controller for Kubernetes Deployments, DaemonSets and StatefulSets
 
-For the kubectl scan plugin see [kubectl-kubesec](https://github.com/stefanprodan/kubectl-kubesec)
+For the kubectl scan plugin see [kubectl-kubesec](https://github.com/controlplaneio/kubectl-kubesec)
 
 ### Install
 
@@ -194,7 +194,7 @@ spec:
     spec:
       containers:
         - name: kubesec-webhook
-          image: stefanprodan/kubesec:0.1-dev
+          image: controlplaneio/kubesec:0.1-dev
           imagePullPolicy: Always
           command:
             - ./kubesec
