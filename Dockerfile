@@ -1,8 +1,8 @@
 FROM golang:1.10 as builder
 
-RUN mkdir -p /go/src/github.com/stefanprodan/kubesec-webhook/
+RUN mkdir -p /go/src/github.com/controlplaneio/kubesec-webhook/
 
-WORKDIR /go/src/github.com/stefanprodan/kubesec-webhook
+WORKDIR /go/src/github.com/controlplaneio/kubesec-webhook
 
 COPY . .
 
@@ -22,7 +22,7 @@ RUN addgroup -S app \
 
 WORKDIR /home/app
 
-COPY --from=builder /go/src/github.com/stefanprodan/kubesec-webhook/kubesec .
+COPY --from=builder /go/src/github.com/controlplaneio/kubesec-webhook/kubesec .
 
 RUN chown -R app:app ./
 

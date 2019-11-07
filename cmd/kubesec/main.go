@@ -15,7 +15,7 @@ import (
 	"github.com/slok/kubewebhook/pkg/log"
 	"github.com/slok/kubewebhook/pkg/observability/metrics"
 
-	"github.com/stefanprodan/kubesec-webhook/pkg/webhook"
+	"github.com/controlplaneio/kubesec-webhook/pkg/webhook"
 )
 
 // Defaults.
