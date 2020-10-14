@@ -7,7 +7,10 @@ OS="`uname`"
 
 # Generate cert
 openssl genrsa -out webhookCA.key 2048
-openssl req -new -key ./webhookCA.key -subj "/CN=${NAME}.${NAMESPACE}.svc" -out ./webhookCA.csr
+openssl req -new -key ./webhookCA.key \
+  -subj "/CN=${NAME}.${NAMESPACE}.svc" \
+  -addext "subjectAltName = DNS:${NAME}.${NAMESPACE}.svc" \
+  -out ./webhookCA.csr
 openssl x509 -req -days 365 -in webhookCA.csr -signkey webhookCA.key -out webhook.crt
 
 # Generate cert secret
