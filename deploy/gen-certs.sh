@@ -7,15 +7,23 @@ OS="`uname`"
 
 # Generate cert
 openssl genrsa -out webhookCA.key 2048
-openssl req -new -key ./webhookCA.key -subj "/CN=${NAME}.${NAMESPACE}.svc" -out ./webhookCA.csr
-openssl x509 -req -days 365 -in webhookCA.csr -signkey webhookCA.key -out webhook.crt
+openssl req -new -key ./webhookCA.key \
+  -subj "/CN=${NAME}.${NAMESPACE}.svc" \
+  -addext "subjectAltName = DNS:${NAME}.${NAMESPACE}.svc" \
+  -out ./webhookCA.csr
+openssl x509 -req \
+  -extfile <(printf "subjectAltName=DNS:%s.%s.svc" "${NAME}" "${NAMESPACE}") \
+  -days 365 \
+  -in webhookCA.csr \
+  -signkey webhookCA.key \
+  -out webhook.crt
 
 # Generate cert secret
 kubectl -n kubesec create secret generic \
-    ${NAME}-certs \
+    "${NAME}"-certs \
     --from-file=key.pem=./webhookCA.key \
     --from-file=cert.pem=./webhook.crt \
-    --dry-run -o yaml > ./webhook-certs.yaml
+    --dry-run=client -o yaml > ./webhook-certs.yaml
 
 # Encode CABundle
 if [[ "$OS" == "Darwin" ]]; then
