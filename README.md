@@ -176,7 +176,7 @@ PATH and increase attack cost"
 You can set the minimum Kubesec.io score in `./deploy/webhook/yaml`:
 
 ```yaml
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kubesec-webhook
