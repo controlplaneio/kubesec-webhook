@@ -34,7 +34,7 @@ Try to apply a privileged Deployment:
 kubectl apply -f ./test/deployment.yaml
 
 Error from server (InternalError): error when creating "./test/deployment.yaml": 
-Internal error occurred: admission webhook "deployment.admission.kubesc.io" denied the request: 
+Internal error occurred: admission webhook "deployment.admission.kubesec.io" denied the request: 
 deployment-test score is -30, deployment minimum accepted score is 0
 Scan Result:
 {
@@ -82,7 +82,7 @@ Try to apply a privileged DaemonSet:
 kubectl apply -f ./test/daemonset.yaml
 
 Error from server (InternalError): error when creating "./test/daemonset.yaml": 
-Internal error occurred: admission webhook "daemonset.admission.kubesc.io" denied the request: 
+Internal error occurred: admission webhook "daemonset.admission.kubesec.io" denied the request: 
 daemonset-test score is -30, daemonset minimum accepted score is 0
 Scan Result:
 {
@@ -129,7 +129,7 @@ Try to apply a privileged StatefulSet:
 kubectl apply -f ./test/statefulset.yaml
 
 Error from server (InternalError): error when creating "./test/statefulset.yaml": 
-Internal error occurred: admission webhook "statefulset.admission.kubesc.io" denied the request: 
+Internal error occurred: admission webhook "statefulset.admission.kubesec.io" denied the request: 
 statefulset-test score is -30, statefulset minimum accepted score is 0
 Scan Result:
 {

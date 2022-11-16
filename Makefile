@@ -23,7 +23,7 @@ certs:
 
 .PHONY: deploy
 deploy:
-	kubectl create namespace kubesec
+	kubectl create ns kubesec -oyaml --dry-run=client | kubectl apply -f -
 	kubectl apply -f ./deploy/
 
 .PHONY: delete

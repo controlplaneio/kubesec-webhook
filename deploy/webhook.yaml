@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: kubesec-webhook
-          image: stefanprodan/kubesec-webhook:0.1-dev
+          image: docker.io/stefanprodan/kubesec-webhook:0.1-dev
           imagePullPolicy: Always
           securityContext:
             readOnlyRootFilesystem: true
@@ -33,7 +33,7 @@ spec:
               add:
               - NET_BIND_SERVICE
           command:
-            - ./kubesec
+            - ./kubesec-webhook
           args:
             - -tls-cert-file=/etc/webhook/certs/cert.pem
             - -tls-key-file=/etc/webhook/certs/key.pem

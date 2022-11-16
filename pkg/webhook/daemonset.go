@@ -6,11 +6,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
+	"github.com/controlplaneio/kubectl-kubesec/v2/pkg/kubesec"
 	"github.com/slok/kubewebhook/pkg/log"
 	"github.com/slok/kubewebhook/pkg/observability/metrics"
 	"github.com/slok/kubewebhook/pkg/webhook"
 	"github.com/slok/kubewebhook/pkg/webhook/validating"
-	"github.com/stefanprodan/kubectl-kubesec/pkg/kubesec"
 	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
@@ -49,27 +50,23 @@ func (d *daemonSetsValidator) Validate(_ context.Context, obj metav1.Object) (bo
 
 	d.logger.Infof("Scanning daemonset %s", kObj.Name)
 
-	result, err := kubesec.NewClient().ScanDefinition(buffer)
-	if err != nil {
+	results, err := kubesec.NewClient(scanURL, scanTimeOut).ScanDefinition(buffer)
+	if err != nil || len(results) == 0 {
 		d.logger.Errorf("kubesec.io scan failed %v", err)
 		return false, validating.ValidatorResult{Valid: true}, nil
 	}
-	if result.Error != "" {
-		d.logger.Errorf("kubesec.io scan failed %v", result.Error)
-		return false, validating.ValidatorResult{Valid: true}, nil
-	}
 
-	jq, err := json.MarshalIndent(result, "", "  ")
+	jq, err := json.MarshalIndent(results, "", "  ")
 	if err != nil {
 		d.logger.Errorf("kubesec.io pretty printing issue %v", err)
 		return false, validating.ValidatorResult{Valid: true}, nil
 	}
 	d.logger.Infof("Scan Result:\n%s", jq)
 
-	if result.Score < d.minScore {
+	if results[0].Score < d.minScore {
 		return true, validating.ValidatorResult{
 			Valid:   false,
-			Message: fmt.Sprintf("%s score is %d, daemonset minimum accepted score is %d\nScan Result:\n%s", kObj.Name, result.Score, d.minScore, jq),
+			Message: fmt.Sprintf("%s score is %d, daemonset minimum accepted score is %d\nScan Result:\n%s", kObj.Name, results[0].Score, d.minScore, jq),
 		}, nil
 	}
 
@@ -90,5 +87,5 @@ func NewDaemonSetWebhook(minScore int, mrec metrics.Recorder, logger log.Logger)
 		Obj:  &extensionsv1beta1.DaemonSet{},
 	}
 
-	return validating.NewWebhook(cfg, val, mrec, logger)
+	return validating.NewWebhook(cfg, val, nil, mrec, logger)
 }

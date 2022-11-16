@@ -1,73 +1,89 @@
 ---
-apiVersion: admissionregistration.k8s.io/v1beta1
-kind: MutatingWebhookConfiguration
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
 metadata:
   name: kubesec-webhook
   labels:
     app: kubesec-webhook
     kind: validator
 webhooks:
-  - name: deployment.admission.kubesc.io
-    clientConfig:
-      service:
-        name: kubesec-webhook
-        namespace: kubesec
-        path: "/deployment"
-      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5RENDQWJBQ0NRREs1M295TWY5NGJUQU5CZ2txaGtpRzl3MEJBUVVGQURBbU1TUXdJZ1lEVlFRRERCdHIKZFdKbGMyVmpMWGRsWW1odmIyc3VhM1ZpWlhObFl5NXpkbU13SGhjTk1UZ3dOekk1TWpJMU1EQTJXaGNOTVRrdwpOekk1TWpJMU1EQTJXakFtTVNRd0lnWURWUVFEREJ0cmRXSmxjMlZqTFhkbFltaHZiMnN1YTNWaVpYTmxZeTV6CmRtTXdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEdWZNZ1htSG95MmFUQTh1dTMKcTlpVGNFL0xFMjIrMHBuTlovdE05VVl3Rm85OE01YVJvQm1sa0NjNDFpb1VXaHJKeklvUVQyUUkzblBPMkMwUQpodkNGTnhEMXdKdWtGclZXUU5DZENmbm15dkErdzdRYkRURVhmSm9ZeVNSM2RPeHF1UE9ndGc0Zk53Nk9TSlJyClgvdWFiS0FpQkxNaU5IRmZlUTUwdVREckhhU0FDdGxxWVBQdWE4dU1BMVhqYTNFQlFvNVB4bEVhQk9XQXB4aksKd01rVUxOOTRzU0IvS05CN25rZUhoWW13am9hY25PVUErc1RHYzBrclpNNjFydDhpSXZleDZXbm5sRXE0QythZgpSQ0tLOS8rQ1g3VkJjV3MxdEFPWkNuRklBY1VacHNJU0RjOE9NTmhVcEpXQ3BzcmF3YlBvVWtHR1pOOGFmaDBTCi9BNnRBZ01CQUFFd0RRWUpLb1pJaHZjTkFRRUZCUUFEZ2dFQkFKOHR6d05sNW1CeUM3V2FGNXlWUlI2aTJFWWQKL0FFZG04RFNLSWE5Q3dyUXBKR1VPVU1ycXcyaFdaOFNxckNzZkJtWUVEUG1zOE5tRTB6S2hTWS81SVFYZFA4YwphL2kvRFFSKzBXREtFVlFXT2Q5dWg5N21jVmtkMTc3eVN1clFpYjVkTzkycG1nQW1KcEdNaGllMjJ1elhoZ2RQCkw5cGphRUVaa3E1aXdKa3EyNHg0anY2Tk9YVUNHNUkrZ2crVVVJNnA1czFhT29xRC94Tk9XV0U4c1B5cENraUMKRzZ0MnJUU0RNQmtxTUtTd1VsN1NPZVp1TWZjUWVmYng4Q0JyOVE1U3FCOEdwMExIMmM3ZVZ6Y3pLOGE1Sm02aApIOFJER0xNV25VR1BtaTZBM3hWZFhsMW1Ic0htazY0OWdpdW5WY09peE8rKzBJZTFyeDBsTjY1VW9tZz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
-    rules:
-      - operations:
-        - CREATE
-        - UPDATE
-        apiGroups:
-        - apps
-        - extensions
-        apiVersions:
-        - "*"
-        resources:
-        - deployments
-    failurePolicy: Fail
-    namespaceSelector:
-      matchLabels:
-        kubesec-validation: enabled
-  - name: daemonset.admission.kubesc.io
-    clientConfig:
-      service:
-        name: kubesec-webhook
-        namespace: kubesec
-        path: "/daemonset"
-      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5RENDQWJBQ0NRREs1M295TWY5NGJUQU5CZ2txaGtpRzl3MEJBUVVGQURBbU1TUXdJZ1lEVlFRRERCdHIKZFdKbGMyVmpMWGRsWW1odmIyc3VhM1ZpWlhObFl5NXpkbU13SGhjTk1UZ3dOekk1TWpJMU1EQTJXaGNOTVRrdwpOekk1TWpJMU1EQTJXakFtTVNRd0lnWURWUVFEREJ0cmRXSmxjMlZqTFhkbFltaHZiMnN1YTNWaVpYTmxZeTV6CmRtTXdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEdWZNZ1htSG95MmFUQTh1dTMKcTlpVGNFL0xFMjIrMHBuTlovdE05VVl3Rm85OE01YVJvQm1sa0NjNDFpb1VXaHJKeklvUVQyUUkzblBPMkMwUQpodkNGTnhEMXdKdWtGclZXUU5DZENmbm15dkErdzdRYkRURVhmSm9ZeVNSM2RPeHF1UE9ndGc0Zk53Nk9TSlJyClgvdWFiS0FpQkxNaU5IRmZlUTUwdVREckhhU0FDdGxxWVBQdWE4dU1BMVhqYTNFQlFvNVB4bEVhQk9XQXB4aksKd01rVUxOOTRzU0IvS05CN25rZUhoWW13am9hY25PVUErc1RHYzBrclpNNjFydDhpSXZleDZXbm5sRXE0QythZgpSQ0tLOS8rQ1g3VkJjV3MxdEFPWkNuRklBY1VacHNJU0RjOE9NTmhVcEpXQ3BzcmF3YlBvVWtHR1pOOGFmaDBTCi9BNnRBZ01CQUFFd0RRWUpLb1pJaHZjTkFRRUZCUUFEZ2dFQkFKOHR6d05sNW1CeUM3V2FGNXlWUlI2aTJFWWQKL0FFZG04RFNLSWE5Q3dyUXBKR1VPVU1ycXcyaFdaOFNxckNzZkJtWUVEUG1zOE5tRTB6S2hTWS81SVFYZFA4YwphL2kvRFFSKzBXREtFVlFXT2Q5dWg5N21jVmtkMTc3eVN1clFpYjVkTzkycG1nQW1KcEdNaGllMjJ1elhoZ2RQCkw5cGphRUVaa3E1aXdKa3EyNHg0anY2Tk9YVUNHNUkrZ2crVVVJNnA1czFhT29xRC94Tk9XV0U4c1B5cENraUMKRzZ0MnJUU0RNQmtxTUtTd1VsN1NPZVp1TWZjUWVmYng4Q0JyOVE1U3FCOEdwMExIMmM3ZVZ6Y3pLOGE1Sm02aApIOFJER0xNV25VR1BtaTZBM3hWZFhsMW1Ic0htazY0OWdpdW5WY09peE8rKzBJZTFyeDBsTjY1VW9tZz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
-    rules:
-      - operations:
-        - CREATE
-        - UPDATE
-        apiGroups:
-        - apps
-        - extensions
-        apiVersions:
-        - "*"
-        resources:
-        - daemonsets
-    failurePolicy: Fail
-    namespaceSelector:
-      matchLabels:
-        kubesec-validation: enabled
-  - name: statefulset.admission.kubesc.io
-    clientConfig:
-      service:
-        name: kubesec-webhook
-        namespace: kubesec
-        path: "/statefulset"
-      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5RENDQWJBQ0NRREs1M295TWY5NGJUQU5CZ2txaGtpRzl3MEJBUVVGQURBbU1TUXdJZ1lEVlFRRERCdHIKZFdKbGMyVmpMWGRsWW1odmIyc3VhM1ZpWlhObFl5NXpkbU13SGhjTk1UZ3dOekk1TWpJMU1EQTJXaGNOTVRrdwpOekk1TWpJMU1EQTJXakFtTVNRd0lnWURWUVFEREJ0cmRXSmxjMlZqTFhkbFltaHZiMnN1YTNWaVpYTmxZeTV6CmRtTXdnZ0VpTUEwR0NTcUdTSWIzRFFFQkFRVUFBNElCRHdBd2dnRUtBb0lCQVFEdWZNZ1htSG95MmFUQTh1dTMKcTlpVGNFL0xFMjIrMHBuTlovdE05VVl3Rm85OE01YVJvQm1sa0NjNDFpb1VXaHJKeklvUVQyUUkzblBPMkMwUQpodkNGTnhEMXdKdWtGclZXUU5DZENmbm15dkErdzdRYkRURVhmSm9ZeVNSM2RPeHF1UE9ndGc0Zk53Nk9TSlJyClgvdWFiS0FpQkxNaU5IRmZlUTUwdVREckhhU0FDdGxxWVBQdWE4dU1BMVhqYTNFQlFvNVB4bEVhQk9XQXB4aksKd01rVUxOOTRzU0IvS05CN25rZUhoWW13am9hY25PVUErc1RHYzBrclpNNjFydDhpSXZleDZXbm5sRXE0QythZgpSQ0tLOS8rQ1g3VkJjV3MxdEFPWkNuRklBY1VacHNJU0RjOE9NTmhVcEpXQ3BzcmF3YlBvVWtHR1pOOGFmaDBTCi9BNnRBZ01CQUFFd0RRWUpLb1pJaHZjTkFRRUZCUUFEZ2dFQkFKOHR6d05sNW1CeUM3V2FGNXlWUlI2aTJFWWQKL0FFZG04RFNLSWE5Q3dyUXBKR1VPVU1ycXcyaFdaOFNxckNzZkJtWUVEUG1zOE5tRTB6S2hTWS81SVFYZFA4YwphL2kvRFFSKzBXREtFVlFXT2Q5dWg5N21jVmtkMTc3eVN1clFpYjVkTzkycG1nQW1KcEdNaGllMjJ1elhoZ2RQCkw5cGphRUVaa3E1aXdKa3EyNHg0anY2Tk9YVUNHNUkrZ2crVVVJNnA1czFhT29xRC94Tk9XV0U4c1B5cENraUMKRzZ0MnJUU0RNQmtxTUtTd1VsN1NPZVp1TWZjUWVmYng4Q0JyOVE1U3FCOEdwMExIMmM3ZVZ6Y3pLOGE1Sm02aApIOFJER0xNV25VR1BtaTZBM3hWZFhsMW1Ic0htazY0OWdpdW5WY09peE8rKzBJZTFyeDBsTjY1VW9tZz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
-    rules:
-      - operations:
-        - CREATE
-        apiGroups:
-        - apps
-        apiVersions:
-        - "*"
-        resources:
-        - statefulsets
-    failurePolicy: Fail
-    namespaceSelector:
-      matchLabels:
-        kubesec-validation: enabled
+- admissionReviewVersions:
+  # NOTE(ludo): admission v1 requires github.com/slok/kubewebhook/v2
+  #- v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: kubesec-webhook
+      namespace: kubesec
+      path: "/deployment"
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURHVENDQWdHZ0F3SUJBZ0lVSnZSUVpMSUJncjVYYTRPb1J0NmN2T2dDbWZRd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0pqRWtNQ0lHQTFVRUF3d2JhM1ZpWlhObFl5MTNaV0pvYjI5ckxtdDFZbVZ6WldNdWMzWmpNQjRYRFRJeQpNVEV4TmpFME1qTXdPVm9YRFRJek1URXhOakUwTWpNd09Wb3dKakVrTUNJR0ExVUVBd3diYTNWaVpYTmxZeTEzClpXSm9iMjlyTG10MVltVnpaV011YzNaak1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0MKQVFFQTQ2L0xjMEFiREMzejdhTFFySE9CZjI1UzdzUVArRnFOUFpYNFBjdWZnd0g4ZDhKY2l0bVZpd2VHOXp2VApQM1MrZ0s3TnNVdXZ1bGNEY3Zndm5EZVF6dkhYZmd0V09ZQVRlSlU2ZkJTNXBscDMxK2wwcG5uYnZ0UFlla2J2CmU2cW1sME9ybWppcm13UVZkWXIrWWxwWWJOSmJmNHh5a0FRTEhEczRGSVlHQXRIV0hpNU0rZFJwTGFWallrbG4KclVMak1GdW80eXdkWGhpNGd2V1lhSlcyRE01ZGxuVzdXZzFRR2huZ1paZ2ZEQW1OT0NhYnM2WEFnalhxUVVQMgp0UlZHck94T0hPZTFFREdjYkY5MDk0dmYrR3E2d0pqU1lpRXBBckwyRlBYeFNjTm0wYVdRNzZqd0Vna2JQaWtSCnhXVXRmbXBIYlIrUnFSSm8xckJqREZaZSt3SURBUUFCb3o4d1BUQW1CZ05WSFJFRUh6QWRnaHRyZFdKbGMyVmoKTFhkbFltaHZiMnN1YTNWaVpYTmxZeTV6ZG1Nd0V3WURWUjBsQkF3d0NnWUlLd1lCQlFVSEF3RXdEUVlKS29aSQpodmNOQVFFTEJRQURnZ0VCQU1pclNEb2FDeUVWYk5UZE9FRW0rVEFadEF4bGlBR1FBaUhDUU5QT0o5WDgwTTVKCkJ6MDBLUDkvaWN3SHcrdEg1aU1MRDk2ZDh1aFZFbllGN2l6NUpYYkZFTnlyY3EvYUJiRWFlVWxSMFltMlpSMEQKL1pHMUtLU3E3WmJrclJRQTAwb2FaLzJBeUdCbWdleklRNk0yU3F5TmRoR1VVdngxVVBYbTlxN1AvWGJQZU1HRApiVFd5alhmc1NlelY0MFFGZFArL09JN3h3WmFVd0lGYWU4S3p5TjdkL1I3byt1WTdzbFE3L3pvWVdmbHpod0VvCnJtYnBVUmJ4SGQwaTNzYndlbWlqc1ZZbDQzYko3MWdvQUhVSlkzNGdEeis2eVRMdU5zaFVsV1haZUhoRzgrSjYKNzhpb01WcTdDU3F4a3lVM0VZc09ydmxCeTdOeHlsYTM3NDZYSWhrPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  failurePolicy: Fail
+  name: deployment.admission.kubesec.io
+  namespaceSelector:
+    matchLabels:
+      kubesec-validation: enabled
+  rules:
+    - operations:
+      - CREATE
+      - UPDATE
+      apiGroups:
+      - apps
+      - extensions
+      apiVersions:
+      - "*"
+      resources:
+      - deployments
+  sideEffects: None
+- admissionReviewVersions:
+  # NOTE(ludo): admission v1 requires github.com/slok/kubewebhook/v2
+  #- v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: kubesec-webhook
+      namespace: kubesec
+      path: "/daemonset"
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURHVENDQWdHZ0F3SUJBZ0lVSnZSUVpMSUJncjVYYTRPb1J0NmN2T2dDbWZRd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0pqRWtNQ0lHQTFVRUF3d2JhM1ZpWlhObFl5MTNaV0pvYjI5ckxtdDFZbVZ6WldNdWMzWmpNQjRYRFRJeQpNVEV4TmpFME1qTXdPVm9YRFRJek1URXhOakUwTWpNd09Wb3dKakVrTUNJR0ExVUVBd3diYTNWaVpYTmxZeTEzClpXSm9iMjlyTG10MVltVnpaV011YzNaak1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0MKQVFFQTQ2L0xjMEFiREMzejdhTFFySE9CZjI1UzdzUVArRnFOUFpYNFBjdWZnd0g4ZDhKY2l0bVZpd2VHOXp2VApQM1MrZ0s3TnNVdXZ1bGNEY3Zndm5EZVF6dkhYZmd0V09ZQVRlSlU2ZkJTNXBscDMxK2wwcG5uYnZ0UFlla2J2CmU2cW1sME9ybWppcm13UVZkWXIrWWxwWWJOSmJmNHh5a0FRTEhEczRGSVlHQXRIV0hpNU0rZFJwTGFWallrbG4KclVMak1GdW80eXdkWGhpNGd2V1lhSlcyRE01ZGxuVzdXZzFRR2huZ1paZ2ZEQW1OT0NhYnM2WEFnalhxUVVQMgp0UlZHck94T0hPZTFFREdjYkY5MDk0dmYrR3E2d0pqU1lpRXBBckwyRlBYeFNjTm0wYVdRNzZqd0Vna2JQaWtSCnhXVXRmbXBIYlIrUnFSSm8xckJqREZaZSt3SURBUUFCb3o4d1BUQW1CZ05WSFJFRUh6QWRnaHRyZFdKbGMyVmoKTFhkbFltaHZiMnN1YTNWaVpYTmxZeTV6ZG1Nd0V3WURWUjBsQkF3d0NnWUlLd1lCQlFVSEF3RXdEUVlKS29aSQpodmNOQVFFTEJRQURnZ0VCQU1pclNEb2FDeUVWYk5UZE9FRW0rVEFadEF4bGlBR1FBaUhDUU5QT0o5WDgwTTVKCkJ6MDBLUDkvaWN3SHcrdEg1aU1MRDk2ZDh1aFZFbllGN2l6NUpYYkZFTnlyY3EvYUJiRWFlVWxSMFltMlpSMEQKL1pHMUtLU3E3WmJrclJRQTAwb2FaLzJBeUdCbWdleklRNk0yU3F5TmRoR1VVdngxVVBYbTlxN1AvWGJQZU1HRApiVFd5alhmc1NlelY0MFFGZFArL09JN3h3WmFVd0lGYWU4S3p5TjdkL1I3byt1WTdzbFE3L3pvWVdmbHpod0VvCnJtYnBVUmJ4SGQwaTNzYndlbWlqc1ZZbDQzYko3MWdvQUhVSlkzNGdEeis2eVRMdU5zaFVsV1haZUhoRzgrSjYKNzhpb01WcTdDU3F4a3lVM0VZc09ydmxCeTdOeHlsYTM3NDZYSWhrPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  failurePolicy: Fail
+  namespaceSelector:
+    matchLabels:
+      kubesec-validation: enabled
+  name: daemonset.admission.kubesec.io
+  rules:
+    - operations:
+      - CREATE
+      - UPDATE
+      apiGroups:
+      - apps
+      - extensions
+      apiVersions:
+      - "*"
+      resources:
+      - daemonsets
+  sideEffects: None
+- admissionReviewVersions:
+  # NOTE(ludo): admission v1 requires github.com/slok/kubewebhook/v2
+  #- v1
+  - v1beta1
+  clientConfig:
+    service:
+      name: kubesec-webhook
+      namespace: kubesec
+      path: "/statefulset"
+    caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURHVENDQWdHZ0F3SUJBZ0lVSnZSUVpMSUJncjVYYTRPb1J0NmN2T2dDbWZRd0RRWUpLb1pJaHZjTkFRRUwKQlFBd0pqRWtNQ0lHQTFVRUF3d2JhM1ZpWlhObFl5MTNaV0pvYjI5ckxtdDFZbVZ6WldNdWMzWmpNQjRYRFRJeQpNVEV4TmpFME1qTXdPVm9YRFRJek1URXhOakUwTWpNd09Wb3dKakVrTUNJR0ExVUVBd3diYTNWaVpYTmxZeTEzClpXSm9iMjlyTG10MVltVnpaV011YzNaak1JSUJJakFOQmdrcWhraUc5dzBCQVFFRkFBT0NBUThBTUlJQkNnS0MKQVFFQTQ2L0xjMEFiREMzejdhTFFySE9CZjI1UzdzUVArRnFOUFpYNFBjdWZnd0g4ZDhKY2l0bVZpd2VHOXp2VApQM1MrZ0s3TnNVdXZ1bGNEY3Zndm5EZVF6dkhYZmd0V09ZQVRlSlU2ZkJTNXBscDMxK2wwcG5uYnZ0UFlla2J2CmU2cW1sME9ybWppcm13UVZkWXIrWWxwWWJOSmJmNHh5a0FRTEhEczRGSVlHQXRIV0hpNU0rZFJwTGFWallrbG4KclVMak1GdW80eXdkWGhpNGd2V1lhSlcyRE01ZGxuVzdXZzFRR2huZ1paZ2ZEQW1OT0NhYnM2WEFnalhxUVVQMgp0UlZHck94T0hPZTFFREdjYkY5MDk0dmYrR3E2d0pqU1lpRXBBckwyRlBYeFNjTm0wYVdRNzZqd0Vna2JQaWtSCnhXVXRmbXBIYlIrUnFSSm8xckJqREZaZSt3SURBUUFCb3o4d1BUQW1CZ05WSFJFRUh6QWRnaHRyZFdKbGMyVmoKTFhkbFltaHZiMnN1YTNWaVpYTmxZeTV6ZG1Nd0V3WURWUjBsQkF3d0NnWUlLd1lCQlFVSEF3RXdEUVlKS29aSQpodmNOQVFFTEJRQURnZ0VCQU1pclNEb2FDeUVWYk5UZE9FRW0rVEFadEF4bGlBR1FBaUhDUU5QT0o5WDgwTTVKCkJ6MDBLUDkvaWN3SHcrdEg1aU1MRDk2ZDh1aFZFbllGN2l6NUpYYkZFTnlyY3EvYUJiRWFlVWxSMFltMlpSMEQKL1pHMUtLU3E3WmJrclJRQTAwb2FaLzJBeUdCbWdleklRNk0yU3F5TmRoR1VVdngxVVBYbTlxN1AvWGJQZU1HRApiVFd5alhmc1NlelY0MFFGZFArL09JN3h3WmFVd0lGYWU4S3p5TjdkL1I3byt1WTdzbFE3L3pvWVdmbHpod0VvCnJtYnBVUmJ4SGQwaTNzYndlbWlqc1ZZbDQzYko3MWdvQUhVSlkzNGdEeis2eVRMdU5zaFVsV1haZUhoRzgrSjYKNzhpb01WcTdDU3F4a3lVM0VZc09ydmxCeTdOeHlsYTM3NDZYSWhrPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  failurePolicy: Fail
+  namespaceSelector:
+    matchLabels:
+      kubesec-validation: enabled
+  name: statefulset.admission.kubesec.io
+  rules:
+    - operations:
+      - CREATE
+      - UPDATE
+      apiGroups:
+      - apps
+      apiVersions:
+      - "*"
+      resources:
+      - statefulsets
+  sideEffects: None

@@ -1,31 +1,27 @@
-FROM golang:1.10 as builder
+FROM docker.io/library/golang:1.19 as builder
 
-RUN mkdir -p /go/src/github.com/stefanprodan/kubesec-webhook/
+WORKDIR /kubesec
 
-WORKDIR /go/src/github.com/stefanprodan/kubesec-webhook
+COPY cmd ./cmd
+COPY vendor ./vendor
+COPY go.mod .
+COPY go.sum .
+COPY pkg ./pkg
 
-COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o kubesec-webhook ./cmd/kubesec
 
-#RUN go test $(go list ./... | grep -v integration | grep -v /vendor/ | grep -v /template/) -cover
+FROM docker.io/library/alpine:3.16
 
-RUN gofmt -l -d $(find . -type f -name '*.go' -not -path "./vendor/*") && \
-  GIT_COMMIT=$(git rev-list -1 HEAD) && \
-  CGO_ENABLED=0 GOOS=linux go build \
-  -a -installsuffix cgo -o kubesec ./cmd/kubesec
+RUN addgroup -S kubesec \
+  && adduser -S -g kubesec kubesec \
+  && apk --no-cache add ca-certificates
 
-FROM alpine:3.7
+WORKDIR /home/kubesec
 
-RUN addgroup -S app \
-    && adduser -S -g app app \
-    && apk --no-cache add \
-    ca-certificates
+COPY --from=builder /kubesec/kubesec-webhook .
 
-WORKDIR /home/app
+RUN chown -R kubesec:kubesec ./
 
-COPY --from=builder /go/src/github.com/stefanprodan/kubesec-webhook/kubesec .
+USER kubesec
 
-RUN chown -R app:app ./
-
-USER app
-
-CMD ["./kubesec"]
+CMD ["./kubesec-webhook"]
