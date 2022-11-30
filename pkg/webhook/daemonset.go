@@ -6,12 +6,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+
+	kubesecv2 "github.com/controlplaneio/kubectl-kubesec/v2/pkg/kubesec"
 	"github.com/slok/kubewebhook/pkg/log"
 	"github.com/slok/kubewebhook/pkg/observability/metrics"
 	"github.com/slok/kubewebhook/pkg/webhook"
 	"github.com/slok/kubewebhook/pkg/webhook/validating"
-	"github.com/stefanprodan/kubectl-kubesec/pkg/kubesec"
-	extensionsv1beta1 "k8s.io/api/extensions/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kjson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 	"k8s.io/client-go/kubernetes/scheme"
@@ -24,7 +25,7 @@ type daemonSetsValidator struct {
 }
 
 func (d *daemonSetsValidator) Validate(_ context.Context, obj metav1.Object) (bool, validating.ValidatorResult, error) {
-	kObj, ok := obj.(*extensionsv1beta1.DaemonSet)
+	kObj, ok := obj.(*appsv1.DaemonSet)
 	if !ok {
 		d.logger.Errorf("received invalid DaemonSet object %v", obj)
 		return false, validating.ValidatorResult{Valid: true}, nil
@@ -45,17 +46,28 @@ func (d *daemonSetsValidator) Validate(_ context.Context, obj metav1.Object) (bo
 		return false, validating.ValidatorResult{Valid: true}, nil
 	}
 
-	writer.Flush()
+	if err := writer.Flush(); err != nil {
+		d.logger.Errorf("failed to flush buffer %v", err)
+		return false, validating.ValidatorResult{Valid: true}, nil
+	}
 
 	d.logger.Infof("Scanning daemonset %s", kObj.Name)
 
-	result, err := kubesec.NewClient().ScanDefinition(buffer)
+	result, err := kubesecv2.NewClient(kubesecScanURL, timeOut).
+		ScanDefinition(buffer)
+
 	if err != nil {
 		d.logger.Errorf("kubesec.io scan failed %v", err)
 		return false, validating.ValidatorResult{Valid: true}, nil
 	}
-	if result.Error != "" {
-		d.logger.Errorf("kubesec.io scan failed %v", result.Error)
+
+	if len(result) != 1 {
+		d.logger.Errorf("daemonset %q scan failed as result is empty", kObj.Name)
+		return false, validating.ValidatorResult{Valid: true}, nil
+	}
+
+	if result[0].Error != "" {
+		d.logger.Errorf("kubesec.io scan failed %v", result[0].Error)
 		return false, validating.ValidatorResult{Valid: true}, nil
 	}
 
@@ -66,10 +78,10 @@ func (d *daemonSetsValidator) Validate(_ context.Context, obj metav1.Object) (bo
 	}
 	d.logger.Infof("Scan Result:\n%s", jq)
 
-	if result.Score < d.minScore {
+	if result[0].Score < d.minScore {
 		return true, validating.ValidatorResult{
 			Valid:   false,
-			Message: fmt.Sprintf("%s score is %d, daemonset minimum accepted score is %d\nScan Result:\n%s", kObj.Name, result.Score, d.minScore, jq),
+			Message: fmt.Sprintf("%s score is %d, daemonset minimum accepted score is %d\nScan Result:\n%s", kObj.Name, result[0].Score, d.minScore, jq),
 		}, nil
 	}
 
@@ -87,7 +99,7 @@ func NewDaemonSetWebhook(minScore int, mrec metrics.Recorder, logger log.Logger)
 
 	cfg := validating.WebhookConfig{
 		Name: "kubesec-daemonset",
-		Obj:  &extensionsv1beta1.DaemonSet{},
+		Obj:  &appsv1.DaemonSet{},
 	}
 
 	return validating.NewWebhook(cfg, val, mrec, logger)

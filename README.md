@@ -14,7 +14,7 @@ Generate webhook configuration files with a new TLS certificate and CA Bundle:
 make certs
 ```
 
-Deploy the admission controller and webhooks in the kubesec namespace (requires Kubernetes 1.10 or newer):
+Deploy the admission controller and webhooks in the kubesec namespace (requires Kubernetes 1.20 or newer):
 
 ```bash
 make deploy
