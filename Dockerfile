@@ -1,31 +1,46 @@
-FROM golang:1.10 as builder
+FROM golang:1.19-alpine AS builder
+COPY . /build
+WORKDIR /build
+RUN apk add --no-cache build-base && \
+    go test -race -v ./... && \
+    GO111MODULE=on CGO_ENABLED=0 GOOS=linux go build -tags netgo -a -v -o /build/kubesec-webhook /build/cmd/kubesec
 
-RUN mkdir -p /go/src/github.com/stefanprodan/kubesec-webhook/
+FROM alpine:3.17.0
 
-WORKDIR /go/src/github.com/stefanprodan/kubesec-webhook
+ENV USER=webhook
+ENV GROUP=webhook
+ENV HOMEDIR="/app"
+ENV UID=60000
+ENV GID=60000
+ENV SHELL='/sbin/nologin'
 
-COPY . .
+#Usage: adduser [OPTIONS] USER [GROUP]
+#
+#Create new user, or add USER to GROUP
+#
+#	-h DIR		Home directory
+#	-g GECOS	GECOS field
+#	-s SHELL	Login shell
+#	-G GRP		Group
+#	-S		    Create a system user
+#	-D		    Don't assign a password
+#	-H		    Don't create home directory
+#	-u UID		User id
+#	-k SKEL		Skeleton directory (/etc/skel)
 
-#RUN go test $(go list ./... | grep -v integration | grep -v /vendor/ | grep -v /template/) -cover
+RUN addgroup  -g "${GID}" "${GROUP}" && \
+    adduser  \
+    -G ${GROUP}  \
+    -D \
+    -g '' \
+    -h ${HOMEDIR} \
+    -s "${SHELL}" \
+    -u "${UID}" \
+    "${USER}"
 
-RUN gofmt -l -d $(find . -type f -name '*.go' -not -path "./vendor/*") && \
-  GIT_COMMIT=$(git rev-list -1 HEAD) && \
-  CGO_ENABLED=0 GOOS=linux go build \
-  -a -installsuffix cgo -o kubesec ./cmd/kubesec
+COPY --from=builder /build/kubesec-webhook /app/kubesec
+USER "${USER}"
+WORKDIR "${HOMEDIR}"
 
-FROM alpine:3.7
+ENTRYPOINT [ "/app/kubesec" ]
 
-RUN addgroup -S app \
-    && adduser -S -g app app \
-    && apk --no-cache add \
-    ca-certificates
-
-WORKDIR /home/app
-
-COPY --from=builder /go/src/github.com/stefanprodan/kubesec-webhook/kubesec .
-
-RUN chown -R app:app ./
-
-USER app
-
-CMD ["./kubesec"]

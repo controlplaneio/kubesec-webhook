@@ -8,14 +8,14 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-
+	
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	whhttp "github.com/slok/kubewebhook/pkg/http"
 	"github.com/slok/kubewebhook/pkg/log"
 	"github.com/slok/kubewebhook/pkg/observability/metrics"
-
-	"github.com/stefanprodan/kubesec-webhook/pkg/webhook"
+	
+	"github.com/controlplaneio/kubesec-webhook/pkg/webhook"
 )
 
 // Defaults.
@@ -47,7 +47,10 @@ func NewFlags() *Flags {
 	fl.StringVar(&flags.KeyFile, "tls-key-file", "certs/key.pem", "TLS key file")
 	fl.IntVar(&flags.MinScore, "min-score", 0, "Kubesec.io minimum score to validate against")
 
-	fl.Parse(os.Args[1:])
+	if err := fl.Parse(os.Args[1:]); err != nil {
+		fmt.Fprintf(os.Stderr, "%s", err)
+		os.Exit(1)
+	}
 
 	return flags
 }

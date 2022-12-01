@@ -1,6 +1,6 @@
 ---
-apiVersion: admissionregistration.k8s.io/v1beta1
-kind: MutatingWebhookConfiguration
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
 metadata:
   name: kubesec-webhook
   labels:
@@ -20,7 +20,6 @@ webhooks:
         - UPDATE
         apiGroups:
         - apps
-        - extensions
         apiVersions:
         - "*"
         resources:
@@ -29,6 +28,9 @@ webhooks:
     namespaceSelector:
       matchLabels:
         kubesec-validation: enabled
+    sideEffects: None
+    timeoutSeconds: 15
+    admissionReviewVersions: ["v1beta1"]
   - name: daemonset.admission.kubesc.io
     clientConfig:
       service:
@@ -42,7 +44,6 @@ webhooks:
         - UPDATE
         apiGroups:
         - apps
-        - extensions
         apiVersions:
         - "*"
         resources:
@@ -51,6 +52,9 @@ webhooks:
     namespaceSelector:
       matchLabels:
         kubesec-validation: enabled
+    sideEffects: None
+    timeoutSeconds: 15
+    admissionReviewVersions: ["v1beta1"]
   - name: statefulset.admission.kubesc.io
     clientConfig:
       service:
@@ -61,6 +65,7 @@ webhooks:
     rules:
       - operations:
         - CREATE
+        - UPDATE
         apiGroups:
         - apps
         apiVersions:
@@ -71,3 +76,6 @@ webhooks:
     namespaceSelector:
       matchLabels:
         kubesec-validation: enabled
+    sideEffects: None
+    timeoutSeconds: 15
+    admissionReviewVersions: ["v1beta1"]
