@@ -7,12 +7,36 @@ metadata:
     app: kubesec-webhook
     kind: validator
 webhooks:
+  - name: pod.admission.kubesc.io
+    clientConfig:
+      service:
+        name: kubesec-webhook
+        namespace: kubesec
+        path: "/"
+      caBundle: CA_BUNDLE
+    rules:
+      - operations:
+        - CREATE
+        - UPDATE
+        apiGroups:
+        - ""
+        apiVersions:
+        - "v1"
+        resources:
+        - pods
+    failurePolicy: Fail
+    namespaceSelector:
+      matchLabels:
+        kubesec-validation: enabled
+    sideEffects: None
+    timeoutSeconds: 15
+    admissionReviewVersions: ["v1"]
   - name: deployment.admission.kubesc.io
     clientConfig:
       service:
         name: kubesec-webhook
         namespace: kubesec
-        path: "/deployment"
+        path: "/"
       caBundle: CA_BUNDLE
     rules:
       - operations:
@@ -30,13 +54,13 @@ webhooks:
         kubesec-validation: enabled
     sideEffects: None
     timeoutSeconds: 15
-    admissionReviewVersions: ["v1beta1"]
+    admissionReviewVersions: ["v1"]
   - name: daemonset.admission.kubesc.io
     clientConfig:
       service:
         name: kubesec-webhook
         namespace: kubesec
-        path: "/daemonset"
+        path: "/"
       caBundle: CA_BUNDLE
     rules:
       - operations:
@@ -54,13 +78,13 @@ webhooks:
         kubesec-validation: enabled
     sideEffects: None
     timeoutSeconds: 15
-    admissionReviewVersions: ["v1beta1"]
+    admissionReviewVersions: ["v1"]
   - name: statefulset.admission.kubesc.io
     clientConfig:
       service:
         name: kubesec-webhook
         namespace: kubesec
-        path: "/statefulset"
+        path: "/"
       caBundle: CA_BUNDLE
     rules:
       - operations:
@@ -78,4 +102,4 @@ webhooks:
         kubesec-validation: enabled
     sideEffects: None
     timeoutSeconds: 15
-    admissionReviewVersions: ["v1beta1"]
+    admissionReviewVersions: ["v1"]

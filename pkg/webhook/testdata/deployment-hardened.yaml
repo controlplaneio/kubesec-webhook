@@ -1,0 +1,33 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hardened-deployment
+spec:
+  selector:
+    matchLabels:
+      app: foo
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: foo
+    spec:
+      containers:
+      - name: main-container
+        image: quay.io/fluentd_elasticsearch/fluentd:v2.5.2
+        securityContext:
+          readOnlyRootFilesystem: true
+          runAsUser: 100
+          runAsNonRoot: true
+          privileged: false
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - "ALL"
+        resources:
+          limits:
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi

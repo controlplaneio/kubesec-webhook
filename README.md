@@ -2,11 +2,12 @@
 
 [![Build Status](https://travis-ci.org/controlplaneio/kubesec-webhook.svg?branch=master)](https://travis-ci.org/controlplaneio/kubesec-webhook)
 
-Kubesec.io admission controller for Kubernetes Deployments, DaemonSets and StatefulSets
+Kubesec.io admission controller for Kubernetes Pods, Deployments,
+DaemonSets and StatefulSets.
 
 For the kubectl scan plugin see [kubectl-kubesec](https://github.com/controlplaneio/kubectl-kubesec)
 
-### Install
+## Install
 
 Generate webhook configuration files with a new TLS certificate and CA Bundle:
 
@@ -18,7 +19,7 @@ Deploy the admission controller and webhooks in the kubesec namespace (requires 
 
 ```bash
 make deploy
-``` 
+```
 
 Enable Kubesec validation by adding this label:
 
@@ -26,15 +27,15 @@ Enable Kubesec validation by adding this label:
 kubectl label namespaces default kubesec-validation=enabled
 ```
 
-### Usage
+## Usage
 
 Try to apply a privileged Deployment:
 
 ```bash
 kubectl apply -f ./test/deployment.yaml
 
-Error from server (InternalError): error when creating "./test/deployment.yaml": 
-Internal error occurred: admission webhook "deployment.admission.kubesc.io" denied the request: 
+Error from server (InternalError): error when creating "./test/deployment.yaml":
+Internal error occurred: admission webhook "deployment.admission.kubesec.io" denied the request:
 deployment-test score is -30, deployment minimum accepted score is 0
 Scan Result:
 {
@@ -60,7 +61,7 @@ Scan Result:
       },
       {
         "selector": "containers[] .securityContext .readOnlyRootFilesystem == true",
-        "reason": "An immutable root filesystem can prevent malicious binaries being added to 
+        "reason": "An immutable root filesystem can prevent malicious binaries being added to
 PATH and increase attack cost"
       },
       {
@@ -81,8 +82,8 @@ Try to apply a privileged DaemonSet:
 ```bash
 kubectl apply -f ./test/daemonset.yaml
 
-Error from server (InternalError): error when creating "./test/daemonset.yaml": 
-Internal error occurred: admission webhook "daemonset.admission.kubesc.io" denied the request: 
+Error from server (InternalError): error when creating "./test/daemonset.yaml":
+Internal error occurred: admission webhook "daemonset.admission.kubesec.io" denied the request:
 daemonset-test score is -30, daemonset minimum accepted score is 0
 Scan Result:
 {
@@ -128,8 +129,8 @@ Try to apply a privileged StatefulSet:
 ```bash
 kubectl apply -f ./test/statefulset.yaml
 
-Error from server (InternalError): error when creating "./test/statefulset.yaml": 
-Internal error occurred: admission webhook "statefulset.admission.kubesc.io" denied the request: 
+Error from server (InternalError): error when creating "./test/statefulset.yaml":
+Internal error occurred: admission webhook "statefulset.admission.kubesec.io" denied the request:
 statefulset-test score is -30, statefulset minimum accepted score is 0
 Scan Result:
 {
@@ -159,7 +160,7 @@ Scan Result:
       },
       {
         "selector": "containers[] .securityContext .readOnlyRootFilesystem == true",
-        "reason": "An immutable root filesystem can prevent malicious binaries being added to 
+        "reason": "An immutable root filesystem can prevent malicious binaries being added to
 PATH and increase attack cost"
       },
       {
@@ -171,7 +172,7 @@ PATH and increase attack cost"
 }
 ```
 
-### Configuration
+## Configuration
 
 You can set the minimum Kubesec.io score in `./deploy/webhook/yaml`:
 
@@ -215,10 +216,11 @@ spec:
             secretName: kubesec-webhook-certs
 ```
 
-### Monitoring 
+## Monitoring
 
-The admission controller exposes Prometheus RED metrics for each webhook a Grafana dashboard is available [here](https://grafana.com/dashboards/7088).
+The admission controller exposes Prometheus RED metrics for each webhook a
+Grafana dashboard is available [here](https://grafana.com/dashboards/7088).
 
 ### Credits
 
-Kudos to [Xabier](https://github.com/slok) for the awesome [kubewebhook library](https://github.com/slok/kubewebhook).  
+Kudos to [Xabier](https://github.com/slok) for the awesome [kubewebhook library](https://github.com/slok/kubewebhook).
