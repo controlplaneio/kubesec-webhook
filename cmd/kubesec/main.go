@@ -8,13 +8,16 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
-	
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	whhttp "github.com/slok/kubewebhook/pkg/http"
-	"github.com/slok/kubewebhook/pkg/log"
-	"github.com/slok/kubewebhook/pkg/observability/metrics"
-	
+	"github.com/sirupsen/logrus"
+	kwhhttp "github.com/slok/kubewebhook/v2/pkg/http"
+	"github.com/slok/kubewebhook/v2/pkg/log"
+	kwhlogrus "github.com/slok/kubewebhook/v2/pkg/log/logrus"
+	kwhprometheus "github.com/slok/kubewebhook/v2/pkg/metrics/prometheus"
+	kwhwebhook "github.com/slok/kubewebhook/v2/pkg/webhook"
+
 	"github.com/controlplaneio/kubesec-webhook/pkg/webhook"
 )
 
@@ -23,13 +26,15 @@ const (
 	lAddressDef     = ":8080"
 	lMetricsAddress = ":8081"
 	debugDef        = false
-	gracePeriod     = 3 * time.Second
+	gracePeriod     = 10 * time.Second
+	JSONLogging     = false
 )
 
 // Flags are the flags of the program.
 type Flags struct {
 	ListenAddress        string
 	MetricsListenAddress string
+	JSONLogging          bool
 	Debug                bool
 	CertFile             string
 	KeyFile              string
@@ -43,6 +48,7 @@ func NewFlags() *Flags {
 	fl.StringVar(&flags.ListenAddress, "listen-address", lAddressDef, "webhook server listen address")
 	fl.StringVar(&flags.MetricsListenAddress, "metrics-listen-address", lMetricsAddress, "metrics server listen address")
 	fl.BoolVar(&flags.Debug, "debug", debugDef, "enable debug mode")
+	fl.BoolVar(&flags.JSONLogging, "enable-json-logging", JSONLogging, "enable JSON logging")
 	fl.StringVar(&flags.CertFile, "tls-cert-file", "certs/cert.pem", "TLS certificate file")
 	fl.StringVar(&flags.KeyFile, "tls-key-file", "certs/key.pem", "TLS key file")
 	fl.IntVar(&flags.MinScore, "min-score", 0, "Kubesec.io minimum score to validate against")
@@ -63,59 +69,44 @@ type Main struct {
 
 // Run will run the main program.
 func (m *Main) Run() error {
-
-	m.logger = &log.Std{
-		Debug: m.flags.Debug,
+	// Logging
+	logrusLogEntry := logrus.NewEntry(logrus.New())
+	logrusLogEntry.WithField("app", "kubesec-webhook")
+	if m.flags.Debug {
+		logrusLogEntry.Logger.SetLevel(logrus.DebugLevel)
 	}
+	if m.flags.JSONLogging {
+		logrusLogEntry.Logger.SetFormatter(&logrus.JSONFormatter{})
+	}
+	m.logger = kwhlogrus.NewLogrus(logrusLogEntry)
 
 	// Register metrics
 	promReg := prometheus.NewRegistry()
-	metricsRec := metrics.NewPrometheus(promReg)
+	metricsRec, err := kwhprometheus.NewRecorder(kwhprometheus.RecorderConfig{Registry: promReg})
+	if err != nil {
+		return fmt.Errorf("could not create Prometheus metrics recorder: %w", err)
+	}
 
-	// Create webhooks
-	pw, err := webhook.NewPodWebhook(m.flags.MinScore, metricsRec, m.logger)
+	// Webhook
+	wh, err := webhook.New(m.flags.MinScore, m.logger)
 	if err != nil {
 		return err
 	}
-	pwd, err := whhttp.HandlerFor(pw)
+
+	handler, err := kwhhttp.HandlerFor(kwhhttp.HandlerConfig{
+		Webhook: kwhwebhook.NewMeasuredWebhook(metricsRec, wh),
+		Logger:  m.logger})
 	if err != nil {
-		return err
+		return fmt.Errorf("error creating pod webhook handler: %w", err)
 	}
-	vdw, err := webhook.NewDeploymentWebhook(m.flags.MinScore, metricsRec, m.logger)
-	if err != nil {
-		return err
-	}
-	vdwh, err := whhttp.HandlerFor(vdw)
-	if err != nil {
-		return err
-	}
-	dw, err := webhook.NewDaemonSetWebhook(m.flags.MinScore, metricsRec, m.logger)
-	if err != nil {
-		return err
-	}
-	dwd, err := whhttp.HandlerFor(dw)
-	if err != nil {
-		return err
-	}
-	sw, err := webhook.NewStatefulSetWebhook(m.flags.MinScore, metricsRec, m.logger)
-	if err != nil {
-		return err
-	}
-	swd, err := whhttp.HandlerFor(sw)
-	if err != nil {
-		return err
-	}
+
 	errC := make(chan error)
 
 	// Serve webhooks
 	go func() {
-
 		m.logger.Infof("webhooks listening on %s...", m.flags.ListenAddress)
 		mux := http.NewServeMux()
-		mux.Handle("/pod", pwd)
-		mux.Handle("/deployment", vdwh)
-		mux.Handle("/daemonset", dwd)
-		mux.Handle("/statefulset", swd)
+		mux.Handle("/", handler)
 		errC <- http.ListenAndServeTLS(
 			m.flags.ListenAddress,
 			m.flags.CertFile,
@@ -177,5 +168,4 @@ func main() {
 		os.Exit(1)
 	}
 	os.Exit(0)
-
 }

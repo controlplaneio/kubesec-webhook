@@ -1,0 +1,24 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deployment-test
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: main-container
+        image: quay.io/fluentd_elasticsearch/fluentd:v2.5.2
+        securityContext:
+          readOnlyRootFilesystem: false
+          runAsUser: 100
+          runAsNonRoot: false
+          privileged: true
+          allowPrivilegeEscalation: true
