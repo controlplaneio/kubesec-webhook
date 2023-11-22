@@ -1,11 +1,11 @@
-FROM golang:1.19-alpine AS builder
+FROM golang:1.21-alpine AS builder
 COPY . /build
 WORKDIR /build
 RUN apk add --no-cache build-base && \
     go test -race -v ./... && \
     GO111MODULE=on CGO_ENABLED=0 GOOS=linux go build -tags netgo -a -v -o /build/kubesec-webhook /build/cmd/kubesec
 
-FROM alpine:3.17.0
+FROM alpine:3.18.4
 
 ENV USER=webhook
 ENV GROUP=webhook
