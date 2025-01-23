@@ -2,7 +2,6 @@ package webhook
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -91,7 +90,7 @@ func TestValidate(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			manifest, err := ioutil.ReadFile(filepath.Clean(tt.specFilepath))
+			manifest, err := os.ReadFile(filepath.Clean(tt.specFilepath))
 			if err != nil {
 				t.Fatalf("error opening fixture file: %v", err)
 			}
