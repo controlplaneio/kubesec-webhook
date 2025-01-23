@@ -15,7 +15,7 @@ push:
 
 .PHONY: test
 test:
-	cd pkg/webhook ; go test -v -race ./...
+	CGO_ENABLED=1 go test -v -race ./...
 
 .PHONY: certs
 certs:

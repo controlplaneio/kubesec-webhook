@@ -1,11 +1,11 @@
-FROM golang:1.21-alpine AS builder
+FROM golang:1.23-alpine AS builder
 COPY . /build
 WORKDIR /build
 RUN apk add --no-cache build-base && \
     go test -race -v ./... && \
-    GO111MODULE=on CGO_ENABLED=0 GOOS=linux go build -tags netgo -a -v -o /build/kubesec-webhook /build/cmd/kubesec
+    GO111MODULE=on CGO_ENABLED=0 GOOS=linux go build -tags netgo -a -v -o /build/kubesec-webhook /build/cmd/kubesec-webhook
 
-FROM alpine:3.18.4
+FROM alpine:3.21.2
 
 ENV USER=webhook
 ENV GROUP=webhook
@@ -30,7 +30,7 @@ ENV SHELL='/sbin/nologin'
 
 RUN addgroup  -g "${GID}" "${GROUP}" && \
     adduser  \
-    -G ${GROUP}  \
+    -G ${GROUP} \
     -D \
     -g '' \
     -h ${HOMEDIR} \
@@ -38,9 +38,9 @@ RUN addgroup  -g "${GID}" "${GROUP}" && \
     -u "${UID}" \
     "${USER}"
 
-COPY --from=builder /build/kubesec-webhook /app/kubesec
+COPY --from=builder /build/kubesec-webhook /app/kubesec-webhook
 USER "${USER}"
 WORKDIR "${HOMEDIR}"
 
-ENTRYPOINT [ "/app/kubesec" ]
+ENTRYPOINT [ "/app/kubesec-webhook" ]
 
